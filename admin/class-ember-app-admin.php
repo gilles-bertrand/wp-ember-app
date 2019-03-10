@@ -40,6 +40,16 @@ class Ember_App_Admin {
 	 */
 	private $version;
 
+/**
+ *  The options name to be used in this plugin
+ * 
+ *  @since 		1.0.0
+ *  @access 	private
+ *  @var 					string		$option_name		Option name of this plugin
+ */
+private $option_name='ember_app';
+
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -100,4 +110,79 @@ class Ember_App_Admin {
 
 	}
 
+
+	public function add_menu_page() {
+	
+		$this->plugin_screen_hook_suffix = add_menu_page(
+			__( 'Ember app Settings', 'ember-app' ),
+			__( 'Ember App', 'ember-app' ),
+			'manage_options',
+			$this->plugin_name,
+			array( $this, 'display_options_page' )
+		);
+	}
+
+public function register_settings(){
+	add_settings_section(
+		$this->option_name . '_general',
+		__( 'General', 'outdated-notice' ),
+		array( $this, $this->option_name . '_general_cb' ),
+		$this->plugin_name
+	);
+
+	add_settings_field(
+		$this->option_name . '_URI',
+		__( 'Ember app URL', 'ember_app' ),
+		array( $this, $this->option_name . '_uri_cb' ),
+		$this->plugin_name,
+		$this->option_name . '_general',
+		array( 'label_for' => $this->option_name . '_uri' )
+	);
+
+	// add_settings_field(
+	// 	$this->option_name . '_day',
+	// 	__( 'Post is outdated after', 'outdated-notice' ),
+	// 	array( $this, $this->option_name . '_day_cb' ),
+	// 	$this->plugin_name,
+	// 	$this->option_name . '_general',
+	// 	array( 'label_for' => $this->option_name . '_day' )
+	// );
+
+	register_setting( $this->plugin_name, $this->option_name . '_uri', array( $this, $this->option_name ) );
+	// register_setting( $this->plugin_name, $this->option_name . '_day', 'intval' );
+}
+
+/**
+	 * Render the text for the general section
+	 *
+	 * @since  1.0.0
+	 */
+	public function ember_app_general_cb() {
+		echo '<p>' . __( 'Please change the settings accordingly.', 'outdated-notice' ) . '</p>';
+	}
+
+	public function ember_app_uri_cb() {
+		$uri = get_option($this->option_name.'_uri');
+		?>
+			<fieldset>
+				<label>
+					<input type="text" name="<?php echo $this->option_name . '_uri' ?>" id="<?php echo $this->option_name . '_uri' ?>" value="<?php $uri ?>">
+					Insert the URL for your ember app
+				</label>
+			</fieldset>
+		<?php
+	}
+	
+	// public function ember_app_day_cb() {
+	// 	echo '<input type="text" name="' . $this->option_name . '_day' . '" id="' . $this->option_name . '_day' . '"> '. __( 'days', 'outdated-notice' );
+	// }
+
+/**
+	 * Render the options page for plugin
+	 *
+	 * @since  1.0.0
+	 */
+	public function display_options_page() {
+		include_once 'partials/ember-app-admin-display.php';
+	}
 }

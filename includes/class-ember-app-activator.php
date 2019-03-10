@@ -47,6 +47,13 @@ class Ember_App_Activator {
       }
     add_rewrite_rule('ember-app-page/?([^/]*)', 'index.php?pagename=ember-app-page', 'top');
     flush_rewrite_rules();
-	}
+    }
+    
 
+
+}
+
+
+function test_init(){
+    
 }
