@@ -51,7 +51,7 @@ class Ember_App_Public {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
+		add_action('getMetaEmber',array($this,'getMetaEmber'));
 	}
 
 	/**
@@ -72,9 +72,15 @@ class Ember_App_Public {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
+		$cssfiles=scandir(dirname(__FILE__).'/dist/assets/');
+		foreach ($cssfiles as $file_name) {
+			if(strpos($file_name,'.css')){
+				wp_enqueue_style($this->plugin_name,plugin_dir_url( __FILE__ ) . 'dist/assets/'.$file_name,array(),$this->version,'all');
+			}
+		}
 
-		wp_enqueue_style( $this->plugin_name.'vendor', plugin_dir_url( __FILE__ ) . 'dist/assets/vendor-d41d8cd98f00b204e9800998ecf8427e.css', array(), $this->version, 'all' );
-		wp_enqueue_style( $this->plugin_name.'app', plugin_dir_url( __FILE__ ) . 'dist/assets/wp-ember-plugin-d41d8cd98f00b204e9800998ecf8427e.css', array(), $this->version, 'all' );
+		// wp_enqueue_style( $this->plugin_name.'vendor', plugin_dir_url( __FILE__ ) . 'dist/assets/vendor-d41d8cd98f00b204e9800998ecf8427e.css', array(), $this->version, 'all' );
+		// wp_enqueue_style( $this->plugin_name.'app', plugin_dir_url( __FILE__ ) . 'dist/assets/wp-ember-plugin-d41d8cd98f00b204e9800998ecf8427e.css', array(), $this->version, 'all' );
 
 	}
 
@@ -96,9 +102,25 @@ class Ember_App_Public {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
+		$jsfiles=scandir(dirname(__FILE__).'/dist/assets/');
+		foreach ($jsfiles as $file_name) {
+			if(strpos($file_name,'.js')){
+				wp_enqueue_script($this->plugin_name.'-'.$file_name,plugin_dir_url( __FILE__ ) . 'dist/assets/'.$file_name,'',$this->version,true);
+			}
+		}
+	}
 
-		wp_enqueue_script( $this->plugin_name.'vendor', plugin_dir_url( __FILE__ ) . 'dist/assets/vendor-0809e312071236e5b5d7fa27bffe0350.js', array( 'jquery' ), $this->version, false );
-		wp_enqueue_script( $this->plugin_name.'app', plugin_dir_url( __FILE__ ) . 'dist/assets/wp-ember-plugin-5f6fb39babbbd53588ff61f48a8a6fea.js', array( 'jquery' ), $this->version, false );
+	/**
+	 * Public function find ember environement html and place it in our template
+	 */
+	public function getMetaEmber(){
+
+		$metas = get_meta_tags(plugin_dir_url( __FILE__ ) . 'dist/index.html');
+		foreach ($metas as $meta => $value) {
+			if(strpos($meta,'config/environment') !== false){
+				print '<meta name="'.$meta.'" content="'.$value.'">';
+			}
+		}
 	}
 
 		/**
