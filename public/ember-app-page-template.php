@@ -13,10 +13,8 @@
  	<meta name="mobile-web-app-capable" content="yes">
  	<meta name="apple-mobile-web-app-capable" content="yes">
  	<meta name="apple-mobile-web-app-title" content="<?php bloginfo( 'name' ); ?> - <?php bloginfo( 'description' ); ?>">
-<?php 
-	do_action('getMetaEmber');
-?>
-
+<?php  do_action('getMetaEmber'); ?>
+<base href="/ember-app-page">
  	<?php wp_head(); ?>
  </head>
 
