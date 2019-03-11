@@ -111,9 +111,9 @@ private $option_name='ember_app';
 	}
 
 
-	public function add_menu_page() {
+	public function add_options_page() {
 	
-		$this->plugin_screen_hook_suffix = add_menu_page(
+		$this->plugin_screen_hook_suffix = add_options_page(
 			__( 'Ember app Settings', 'ember-app' ),
 			__( 'Ember App', 'ember-app' ),
 			'manage_options',
@@ -138,6 +138,14 @@ public function register_settings(){
 		$this->option_name . '_general',
 		array( 'label_for' => $this->option_name . '_uri' )
 	);
+	add_settings_field(
+		$this->option_name . '_URI_OLD',
+		__( 'Ember app URL', 'ember_app' ),
+		array( $this, $this->option_name . '_uri_old_cb' ),
+		$this->plugin_name,
+		$this->option_name . '_general',
+		array( 'label_for' => $this->option_name . '_uri_old' )
+	);
 
 	// add_settings_field(
 	// 	$this->option_name . '_day',
@@ -149,6 +157,7 @@ public function register_settings(){
 	// );
 
 	register_setting( $this->plugin_name, $this->option_name . '_uri', array( $this, $this->option_name ) );
+	register_setting( $this->plugin_name, $this->option_name . '_uri_old', array( $this, $this->option_name ) );
 	// register_setting( $this->plugin_name, $this->option_name . '_day', 'intval' );
 }
 
@@ -162,17 +171,41 @@ public function register_settings(){
 	}
 
 	public function ember_app_uri_cb() {
-		$uri = get_option($this->option_name.'_uri');
+		print_r($_REQUEST);
+			print_r($_REQUEST['page']);
+	if(isset($_REQUEST['settings-updated'])){
+		print_r($_REQUEST['settings-updated']);
+	}
+
 		?>
 			<fieldset>
 				<label>
-					<input type="text" name="<?php echo $this->option_name . '_uri' ?>" id="<?php echo $this->option_name . '_uri' ?>" value="<?php $uri ?>">
+					<input type="text" name="<?php echo $this->option_name . '_uri' ?>" id="<?php echo $this->option_name . '_uri' ?>" value="<?php echo get_option($this->option_name.'_uri'); ?>">
+					Insert the URL for your ember app
+				</label>
+			</fieldset>
+		<?php
+	}
+	public function ember_app_uri_old_cb() {
+		print_r($_REQUEST);
+			print_r($_REQUEST['page']);
+	if(isset($_REQUEST['settings-updated'])){
+		print_r($_REQUEST['settings-updated']);
+	}
+
+		?>
+			<fieldset>
+				<label>
+					<input type="text" name="<?php echo $this->option_name . '_uri_old' ?>" id="<?php echo $this->option_name . '_uri_old' ?>" value="<?php echo get_option($this->option_name.'_uri'); ?>">
 					Insert the URL for your ember app
 				</label>
 			</fieldset>
 		<?php
 	}
 	
+
+
+
 	// public function ember_app_day_cb() {
 	// 	echo '<input type="text" name="' . $this->option_name . '_day' . '" id="' . $this->option_name . '_day' . '"> '. __( 'days', 'outdated-notice' );
 	// }
