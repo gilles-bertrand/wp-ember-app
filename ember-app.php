@@ -1,82 +1,59 @@
 <?php
+/**
+ * @package Ember_app
+ * @version 0.0.1
+ */
+/*
+Plugin Name: Ember app
+Plugin URI: http://wordpress.org/plugins/ember-app/
+Description: This is not just a plugin, it symbolizes the hope and enthusiasm of an entire generation summed up in two words sung most famously by Louis Armstrong: Hello, Dolly. When activated you will randomly see a lyric from <cite>Hello, Dolly</cite> in the upper right of your admin screen on every page.
+Author: Gilles Bertrand
+Version: 0.0.1
+Author URI: http://www.triptyk.eu/
+*/
 
 /**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
- *
- * @link              http://www.triptyk.eu
- * @since             1.0.0
- * @package           Ember_App
- *
- * @wordpress-plugin
- * Plugin Name:       plugin-ember
- * Plugin URI:        http://www.triptyk.eu
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.0
- * Author:            gilles BERTRAND
- * Author URI:        http://www.triptyk.eu
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       ember-app
- * Domain Path:       /languages
+ * Public function find ember environement html and place it in our template
  */
-
-// If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
-}
-
-/**
- * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
- */
-define( 'PLUGIN_NAME_VERSION', '1.0.0' );
-
-/**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-ember-app-activator.php
- */
-function activate_ember_app() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ember-app-activator.php';
-	Ember_App_Activator::activate();
-}
-
-/**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-ember-app-deactivator.php
- */
-function deactivate_ember_app() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ember-app-deactivator.php';
-	Ember_App_Deactivator::deactivate();
-}
-
-register_activation_hook( __FILE__, 'activate_ember_app' );
-register_deactivation_hook( __FILE__, 'deactivate_ember_app' );
-
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-require plugin_dir_path( __FILE__ ) . 'includes/class-ember-app.php';
-
-/**
- * Begins execution of the plugin.
- *
- * Since everything within the plugin is registered via hooks,
- * then kicking off the plugin from this point in the file does
- * not affect the page life cycle.
- *
- * @since    1.0.0
- */
-function run_ember_app() {
-
-	$plugin = new Ember_App();
-	$plugin->run();
+function setMetaEmber()
+{
+    $metas = get_meta_tags(plugin_dir_path( __FILE__ ) . '/ember-apps/dist/index.html');
+    foreach ($metas as $meta => $value) {
+        if (strpos($meta, 'config/environment') !== false) {
+            ?>
+            <meta name="<?php echo $meta; ?>" content="<?php echo $value;?>" />
+                <?php
+        }
+    }
 
 }
-run_ember_app();
+function ember_app($atts, $content = null)
+{
+    global $post;
+    if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'ember')) {
+        $assetFiles = scandir(plugin_dir_path( __FILE__ )  . '/ember-apps/dist/assets/');
+        $files = '';
+        foreach ($assetFiles as $file_name) {
+            if (strpos($file_name, '.js')) {
+                wp_enqueue_script('ember-app-' . $file_name, plugins_url( 'ember-apps/dist/assets/' . $file_name, __FILE__), 1.0, true);
+            }
+            if (strpos($file_name, '.css')) {
+                wp_enqueue_style('ember-app-' . $file_name, plugins_url( 'ember-apps/dist/assets/' . $file_name, __FILE__), 1.0, true);
+            }
+        }
+    }
+    extract(shortcode_atts(
+        array(
+            'url' => '',
+            'language' => '',
+        ), $atts)
+    );
+    $slug = basename(get_permalink());
+    add_rewrite_rule($slug . '/?([^/]*)', 'index.php?pagename=' . $slug, 'top');
+    flush_rewrite_rules();
+    // add_action('wp_enqueue-styles', 'enqueue_ember_styles');
+    return '<base href="/'.$slug.'"><div id="ember-app" data-locale="'.$language.'"></div>';
+}
+
+add_shortcode('ember', 'ember_app');
+add_action( 'wp_head', 'setMetaEmber' );
